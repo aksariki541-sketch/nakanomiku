@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta property="og:title" content="Nakano Miku — WhatsApp Bot"/>
+  <meta property="og:description" content="Bot WhatsApp cerdas untuk grup modern kamu."/>
+  <meta property="og:image" content="https://tmpfiles.org/dl/37240586/upload-1778329788154.jpg"/>
+  <meta property="og:url" content="https://nakano.my.id"/>
+  <meta property="og:type" content="website"/>
+  <title>Nakano Miku — WhatsApp Bot</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a08;
+      --bg2: #111110;
+      --bg3: #181816;
+      --line: rgba(255,255,255,0.07);
+      --line2: rgba(255,255,255,0.12);
+      --text: #f0ede8;
+      --text2: #9e9b95;
+      --text3: #5a5754;
+      --accent: #c8f74a;
+      --accent2: #7fff6e;
+      --red: #ff4d4d;
+      --blue: #4d9fff;
+      --font: 'DM Sans', sans-serif;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --r: 6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ─── SPLASH ─── */
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px;
+      transition: opacity .5s ease, visibility .5s;
+    }
+    #splash.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .splash-logo {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1.5px solid var(--line2);
+      animation: pulse-border 2s ease infinite;
+    }
+    .splash-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    @keyframes pulse-border {
+      0%, 100% { border-color: var(--line2); box-shadow: none; }
+      50% { border-color: var(--accent); box-shadow: 0 0 18px rgba(200,247,74,.2); }
+    }
+
+    .splash-name {
+      font-family: var(--font-display);
+      font-size: 22px; font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .splash-bar-wrap {
+      width: 160px; height: 2px;
+      background: var(--line2); border-radius: 2px;
+      overflow: hidden;
+    }
+    .splash-bar-fill {
+      height: 100%; width: 0%;
+      background: var(--accent);
+      transition: width .08s linear;
+    }
+
+    .splash-pct {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text3);
+      letter-spacing: .1em;
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 24px;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      background: rgba(10,10,8,.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .topbar-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .topbar-logo-img {
+      width: 30px; height: 30px;
+      border-radius: 50%; overflow: hidden;
+      border: 1px solid var(--line2);
+    }
+    .topbar-logo-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .topbar-name {
+      font-family: var(--font-display);
+      font-size: 15px; font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+    .topbar-name em { color: var(--accent); font-style: normal; }
+
+    .topbar-right {
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .live-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--line2);
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text2);
+      letter-spacing: .05em;
+    }
+    .live-dot {
+      width: 6px; height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      animation: blink 1.4s ease infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+
+    .hamburger {
+      width: 36px; height: 36px;
+      border: 1px solid var(--line2);
+      border-radius: var(--r);
+      background: none;
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      transition: border-color .2s, background .2s;
+    }
+    .hamburger:hover { border-color: var(--accent); background: rgba(200,247,74,.06); }
+
+    /* ─── DRAWER ─── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 150;
+      background: rgba(0,0,0,.6);
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s, visibility .3s;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.open { opacity: 1; visibility: visible; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 200;
+      width: min(300px, 88vw);
+      background: var(--bg2);
+      border-left: 1px solid var(--line);
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.25,.46,.45,.94);
+      display: flex; flex-direction: column;
+      padding: 0;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .drawer-head-title {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    .drawer-close {
+      width: 30px; height: 30px;
+      border: 1px solid var(--line2);
+      border-radius: 50%;
+      background: none; color: var(--text2);
+      cursor: pointer; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s;
+    }
+    .drawer-close:hover { border-color: var(--red); color: var(--red); }
+
+    .drawer-links {
+      flex: 1; padding: 12px;
+      display: flex; flex-direction: column; gap: 2px;
+      overflow-y: auto;
+    }
+    .drawer-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px;
+      border-radius: var(--r);
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 13px; font-weight: 400;
+      transition: background .2s, color .2s;
+      cursor: pointer; border: none; background: none;
+      text-align: left; width: 100%;
+    }
+    .drawer-link i { width: 16px; text-align: center; font-size: 12px; }
+    .drawer-link:hover { background: var(--bg3); color: var(--text); }
+    .drawer-link.hi { color: var(--accent); }
+    .drawer-link.hi:hover { background: rgba(200,247,74,.08); }
+
+    .drawer-foot {
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+      font-size: 10px; color: var(--text3);
+      font-family: var(--font-mono);
+    }
+
+    /* ─── QRIS MODAL ─── */
+    .qmodal {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,.75);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: opacity .25s, visibility .25s;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+    }
+    .qmodal.open { opacity: 1; visibility: visible; }
+
+    .qbox {
+      background: var(--bg2);
+      border: 1px solid var(--line2);
+      border-radius: 12px;
+      padding: 28px 24px;
+      width: 100%; max-width: 320px;
+      position: relative;
+    }
+    .qbox-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 28px; height: 28px;
+      border: 1px solid var(--line2); border-radius: 50%;
+      background: none; color: var(--text3);
+      cursor: pointer; font-size: 11px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s;
+    }
+    .qbox-close:hover { border-color: var(--red); color: var(--red); }
+    .qbox-title {
+      font-family: var(--font-display);
+      font-size: 18px; font-weight: 700; margin-bottom: 4px;
+    }
+    .qbox-sub { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+    .qbox-img {
+      background: var(--bg3);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      height: 180px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 16px;
+      color: var(--text3); font-size: 40px;
+    }
+    .qbox-steps {
+      font-size: 11px; color: var(--text2);
+      line-height: 1.9;
+    }
+    .qbox-steps b { color: var(--text); display: block; margin-bottom: 4px; }
+
+    /* ─── PROMO BANNER ─── */
+    .promo-strip {
+      background: rgba(200,247,74,.06);
+      border-bottom: 1px solid rgba(200,247,74,.15);
+      padding: 9px 24px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: .04em;
+    }
+    .promo-strip span { color: var(--text2); }
+
+    /* ─── HERO ─── */
+    .hero-section {
+      padding: 120px 24px 80px;
+      max-width: 960px; margin: 0 auto;
+      position: relative;
+    }
+
+    .hero-kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-kicker::before {
+      content: '';
+      display: block; width: 20px; height: 1px;
+      background: var(--text3);
+    }
+
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(38px, 9vw, 80px);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -.04em;
+      margin-bottom: 28px;
+    }
+    .hero-headline .hl-line2 {
+      display: block;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(240,237,232,.4);
+    }
+    .hero-headline .hl-accent {
+      display: block;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: var(--text2);
+      max-width: 400px;
+      line-height: 1.8;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    .hero-actions {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      margin-bottom: 60px;
+    }
+
+    .btn-main {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 24px;
+      background: var(--accent);
+      color: #0a0a08;
+      font-family: var(--font-display);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: .02em; text-transform: uppercase;
+      border-radius: var(--r);
+      text-decoration: none;
+      border: none; cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn-main:hover { background: #d8ff5a; transform: translateY(-1px); }
+    .btn-main:active { transform: translateY(0); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 24px;
+      border: 1px solid var(--line2);
+      color: var(--text2);
+      font-size: 12px; font-weight: 400;
+      border-radius: var(--r);
+      text-decoration: none;
+      transition: border-color .2s, color .2s, background .2s;
+      cursor: pointer; background: none;
+    }
+    .btn-ghost:hover { border-color: var(--text2); color: var(--text); background: rgba(255,255,255,.04); }
+
+    .hero-stats {
+      display: flex; gap: 40px;
+      flex-wrap: wrap;
+    }
+    .stat { display: flex; flex-direction: column; gap: 3px; }
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 28px; font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+    .stat-num.green { color: var(--accent); }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .08em;
+    }
+
+    /* ─── MARQUEE ─── */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 0;
+      background: var(--bg2);
+    }
+    .marquee-inner {
+      display: flex; gap: 0;
+      width: max-content;
+      animation: marquee 28s linear infinite;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 0 28px;
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .08em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .marquee-item i { color: var(--accent); font-size: 9px; }
+
+    /* ─── SECTION COMMON ─── */
+    .section { padding: 80px 24px; max-width: 960px; margin: 0 auto; }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .12em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1; max-width: 40px;
+      height: 1px; background: var(--line2);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 5vw, 44px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      margin-bottom: 48px;
+    }
+    .section-title .hi { color: var(--accent); }
+
+    /* ─── FEATURES ─── */
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--line);
+    }
+    .feat-cell {
+      background: var(--bg2);
+      padding: 28px 24px;
+      transition: background .2s;
+      position: relative;
+    }
+    .feat-cell:hover { background: var(--bg3); }
+
+    .feat-cell-num {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .1em; margin-bottom: 14px;
+    }
+    .feat-cell-icon {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      background: rgba(200,247,74,.08);
+      border: 1px solid rgba(200,247,74,.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .feat-cell-name {
+      font-family: var(--font-display);
+      font-size: 15px; font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -.01em;
+    }
+    .feat-cell-desc { font-size: 12px; color: var(--text2); line-height: 1.7; }
+
+    /* ─── WHY ─── */
+    .why-section { background: var(--bg2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .why-inner { padding: 80px 24px; max-width: 960px; margin: 0 auto; }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .why-card {
+      padding: 28px 24px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+      transition: border-color .25s, transform .25s;
+      position: relative; overflow: hidden;
+    }
+    .why-card:hover { border-color: rgba(200,247,74,.3); transform: translateY(-3px); }
+    .why-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .why-card:hover::before { opacity: 1; }
+
+    .why-card-num {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .1em; margin-bottom: 16px;
+    }
+    .why-card-title {
+      font-family: var(--font-display);
+      font-size: 17px; font-weight: 700;
+      letter-spacing: -.01em; margin-bottom: 10px;
+    }
+    .why-card-desc { font-size: 12px; color: var(--text2); line-height: 1.75; }
+
+    /* ─── PRICING ─── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 16px;
+    }
+    .price-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 24px;
+      background: var(--bg2);
+      display: flex; flex-direction: column; gap: 14px;
+      transition: border-color .25s, transform .25s;
+      position: relative;
+    }
+    .price-card:hover { border-color: var(--line2); transform: translateY(-2px); }
+    .price-card.pop {
+      border-color: rgba(200,247,74,.35);
+      background: rgba(200,247,74,.04);
+    }
+    .price-card.pop:hover { border-color: rgba(200,247,74,.55); }
+
+    .price-tag-wrap { display: flex; align-items: center; justify-content: space-between; }
+    .price-tag {
+      font-family: var(--font-mono);
+      font-size: 9px; color: var(--text3);
+      letter-spacing: .1em; text-transform: uppercase;
+      border: 1px solid var(--line);
+      padding: 3px 8px; border-radius: 20px;
+    }
+    .pop-badge {
+      font-family: var(--font-mono);
+      font-size: 9px; color: var(--bg);
+      background: var(--accent);
+      padding: 3px 8px; border-radius: 20px;
+      letter-spacing: .06em;
+    }
+    .flash-badge {
+      font-family: var(--font-mono);
+      font-size: 9px; color: var(--accent);
+      background: rgba(200,247,74,.1);
+      border: 1px solid rgba(200,247,74,.3);
+      padding: 3px 8px; border-radius: 20px;
+      letter-spacing: .06em;
+    }
+
+    .price-plan {
+      font-family: var(--font-display);
+      font-size: 20px; font-weight: 800;
+      letter-spacing: -.02em; line-height: 1.1;
+    }
+    .price-desc-text { font-size: 11px; color: var(--text3); }
+
+    .price-amount-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .price-amount-main {
+      font-family: var(--font-display);
+      font-size: 30px; font-weight: 800;
+      letter-spacing: -.03em; line-height: 1;
+    }
+    .price-amount-main .per {
+      font-size: 12px; font-weight: 400;
+      color: var(--text3); font-family: var(--font);
+      letter-spacing: 0;
+    }
+    .price-amount-main.flash { color: var(--accent); }
+    .price-old-text { font-size: 11px; color: var(--text3); text-decoration: line-through; }
+
+    .price-feats { display: flex; flex-direction: column; gap: 8px; }
+    .price-feat-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text2);
+    }
+    .price-feat-item i { color: var(--accent); font-size: 10px; }
+
+    .price-cta-btn {
+      display: block; text-align: center;
+      padding: 12px;
+      border-radius: var(--r);
+      font-family: var(--font-display);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: .04em; text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--line2);
+      color: var(--text2);
+      background: none;
+      transition: border-color .2s, color .2s, background .2s;
+      margin-top: auto;
+    }
+    .price-cta-btn:hover { border-color: var(--text2); color: var(--text); background: rgba(255,255,255,.04); }
+    .price-cta-btn.primary {
+      background: var(--accent); color: #0a0a08;
+      border-color: var(--accent);
+    }
+    .price-cta-btn.primary:hover { background: #d8ff5a; border-color: #d8ff5a; }
+    .price-cta-btn.green {
+      border-color: rgba(200,247,74,.4); color: var(--accent);
+      background: rgba(200,247,74,.06);
+    }
+    .price-cta-btn.green:hover { background: rgba(200,247,74,.12); }
+
+    .jadibot-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 24px;
+      background: var(--bg2);
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .jadibot-title {
+      font-family: var(--font-display);
+      font-size: 14px; font-weight: 700;
+      letter-spacing: -.01em; margin-bottom: 14px;
+    }
+    .jadibot-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+    }
+    .jadibot-row:last-of-type { margin-bottom: 14px; }
+    .jadibot-price {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--accent);
+    }
+    .jadibot-cta {
+      display: block; text-align: center;
+      padding: 11px;
+      border: 1px solid rgba(200,247,74,.3);
+      border-radius: var(--r);
+      color: var(--accent);
+      font-family: var(--font-display);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: .04em; text-transform: uppercase;
+      text-decoration: none;
+      background: rgba(200,247,74,.05);
+      transition: background .2s;
+    }
+    .jadibot-cta:hover { background: rgba(200,247,74,.12); }
+
+    .payment-row {
+      margin-top: 32px;
+      padding: 20px 24px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg2);
+      display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    }
+    .payment-label-text {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-right: 4px;
+    }
+    .pay-chip {
+      padding: 5px 12px;
+      border: 1px solid var(--line2);
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text2);
+      letter-spacing: .06em;
+      cursor: pointer; text-decoration: none;
+      transition: border-color .2s, color .2s;
+      background: none;
+    }
+    .pay-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .pay-chip.q { border-color: rgba(200,247,74,.3); color: var(--accent); background: rgba(200,247,74,.05); }
+
+
+
+    .drawer-group { display: flex; flex-direction: column; }
+    .drawer-parent {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%;
+    }
+    .drawer-parent span { display: flex; align-items: center; gap: 12px; }
+    .drawer-chevron {
+      font-size: 10px; color: var(--text3);
+      transition: transform .25s, color .2s;
+    }
+    .drawer-group.open .drawer-chevron { transform: rotate(90deg); color: var(--accent); }
+    .drawer-sub {
+      display: none;
+      flex-direction: column; gap: 0;
+      padding-left: 16px;
+      border-left: 1px solid var(--line2);
+      margin-left: 20px;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+    .drawer-group.open .drawer-sub { display: flex; }
+    .drawer-sub-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--r);
+      color: var(--text3);
+      font-size: 12px;
+      text-decoration: none;
+      transition: color .2s, background .2s;
+    }
+    .drawer-sub-link i { font-size: 7px; }
+    .drawer-sub-link:hover { color: var(--accent); background: rgba(200,247,74,.05); }
+
+
+    .cta-block {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 60px 32px;
+      text-align: center;
+      background: var(--bg2);
+      position: relative; overflow: hidden;
+    }
+    .cta-block::before {
+      content: '';
+      position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+      width: 400px; height: 300px;
+      background: radial-gradient(circle, rgba(200,247,74,.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-label {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text3);
+      letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 5vw, 40px);
+      font-weight: 800; letter-spacing: -.03em;
+      line-height: 1.1; margin-bottom: 14px;
+    }
+    .cta-sub { font-size: 13px; color: var(--text2); margin-bottom: 32px; font-weight: 300; }
+    .cta-btns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+    /* ─── FAQ ─── */
+    .faq-list { display: flex; flex-direction: column; gap: 1px; background: var(--line); border-radius: 10px; overflow: hidden; }
+    .faq-item { background: var(--bg2); }
+    .faq-btn {
+      width: 100%; text-align: left;
+      padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      cursor: pointer; border: none; background: none;
+      color: var(--text);
+      font-size: 13px; font-weight: 500;
+      font-family: var(--font);
+      transition: background .2s;
+    }
+    .faq-btn:hover { background: var(--bg3); }
+    .faq-icon { color: var(--text3); font-size: 11px; flex-shrink: 0; transition: transform .25s, color .2s; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--accent); }
+    .faq-body { display: none; padding: 0 24px 20px; }
+    .faq-item.open .faq-body { display: block; }
+    .faq-body p { font-size: 12px; color: var(--text2); line-height: 1.8; }
+
+    /* ─── BOTTOM CTA ─── */
+    .btm-section {
+      padding: 80px 24px;
+      text-align: center;
+      border-top: 1px solid var(--line);
+    }
+    .btm-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 7vw, 64px);
+      font-weight: 800; letter-spacing: -.04em;
+      line-height: 1.05; margin-bottom: 14px;
+    }
+    .btm-title .outline {
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(200,247,74,.6);
+    }
+    .btm-sub { font-size: 13px; color: var(--text2); margin-bottom: 32px; font-weight: 300; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 24px;
+      border-top: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 14px; font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .footer-brand em { color: var(--accent); font-style: normal; }
+    .footer-copy { font-family: var(--font-mono); font-size: 10px; color: var(--text3); letter-spacing: .06em; }
+
+    /* ─── DIVIDER ─── */
+    .h-line { border: none; border-top: 1px solid var(--line); }
+
+    /* ─── ANIMATIONS ─── */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 600px) {
+      .hero-stats { gap: 24px; }
+      .topbar { padding: 0 16px; }
+      .section { padding: 60px 16px; }
+      .hero-section { padding: 100px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">
+    <img src="https://n.uguu.se/WzgOGKth.jpg" alt="Nakano Miku">
+  </div>
+  <div class="splash-name">Nakano Miku</div>
+  <div class="splash-bar-wrap">
+    <div class="splash-bar-fill" id="splFill"></div>
+  </div>
+  <div class="splash-pct" id="splPct">0%</div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span class="drawer-head-title">Navigation</span>
+    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="drawer-links">
+    <div class="drawer-group">
+      <button class="drawer-link drawer-parent" onclick="toggleSub(this)">
+        <span><i class="fas fa-cube"></i> Features</span>
+        <i class="fas fa-chevron-right drawer-chevron"></i>
+      </button>
+      <div class="drawer-sub">
+        <a class="drawer-sub-link" href="#features" onclick="closeDrawer()"><i class="fas fa-circle-dot"></i> Core Features</a>
+        <a class="drawer-sub-link" href="#why" onclick="closeDrawer()"><i class="fas fa-circle-dot"></i> Why Nakano Miku</a>
+      </div>
+    </div>
+    <a class="drawer-link" href="#pricing" onclick="closeDrawer()"><i class="fas fa-credit-card"></i> Paket</a>
+    <a class="drawer-link" href="#faq" onclick="closeDrawer()"><i class="fas fa-circle-question"></i> FAQ</a>
+    <a class="drawer-link" href="https://wa.me/6282320532450" target="_blank"><i class="fab fa-whatsapp"></i> Kontak</a>
+    <button class="drawer-link hi" onclick="openQ(); closeDrawer()"><i class="fas fa-qrcode"></i> QRIS Payment</button>
+  </div>
+  <div class="drawer-foot">© 2025 Nakano Miku</div>
+</div>
+
+<!-- QRIS MODAL -->
+<div class="qmodal" id="qmodal" onclick="if(event.target===this) closeQ()">
+  <div class="qbox">
+    <button class="qbox-close" onclick="closeQ()"><i class="fas fa-times"></i></button>
+    <div class="qbox-title">QRIS Payment</div>
+    <div class="qbox-sub">Scan kode QR dengan e-wallet favorit kamu</div>
+    <div class="qbox-img">
+      <i class="fas fa-qrcode"></i>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:.08em">QR CODE</span>
+    </div>
+    <div class="qbox-steps">
+      <b>Cara bayar:</b>
+      1. Buka aplikasi e-wallet<br>
+      2. Pilih "Scan" atau "QRIS"<br>
+      3. Scan QR di atas<br>
+      4. Kirim bukti ke admin
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="#" class="topbar-logo">
+    <div class="topbar-logo-img">
+      <img src="https://n.uguu.se/WzgOGKth.jpg" alt="">
+    </div>
+    <span class="topbar-name">Nakano <em>Miku</em></span>
+  </a>
+  <div class="topbar-right">
+    <div class="live-chip">
+      <span class="live-dot"></span>
+      <span id="liveCount">145</span> active
+    </div>
+    <button class="hamburger" onclick="openDrawer()"><i class="fas fa-ellipsis-vertical"></i></button>
+  </div>
+</header>
+
+<!-- PROMO STRIP -->
+<div class="promo-strip">
+  ⚡ Flash Sale aktif — berakhir dalam: <span id="countdown">--:--:--</span>
+</div>
+
+<!-- HERO -->
+<section class="hero-section">
+  <div class="hero-kicker">WhatsApp Automation Platform</div>
+
+  <h1 class="hero-headline">
+    Bot cerdas
+    <span class="hl-line2">untuk grupmu.</span>
+    <span class="hl-accent">Modern.</span>
+  </h1>
+
+  <p class="hero-sub">
+    Downloader, AI chat, game ekonomi, dan tools admin — semua dalam satu integrasi yang rapi dan cepat.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#pricing" class="btn-main">Jelajahi Paket <i class="fas fa-arrow-right"></i></a>
+    <a href="https://wa.me/6282320532450" target="_blank" class="btn-ghost"><i class="fab fa-whatsapp"></i> Konsultasi Gratis</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num green" id="userCount">14.7K</div>
+      <div class="stat-label">Pengguna</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Online</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">99.9%</div>
+      <div class="stat-label">Uptime</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-inner" id="marqueeInner">
+    <!-- duplicated for seamless loop -->
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Core Features</div>
+  <h2 class="section-title">Semua yang kamu butuhkan,<br>ada di <span class="hi">satu bot</span>.</h2>
+
+  <div class="feat-grid reveal">
+    <div class="feat-cell">
+      <div class="feat-cell-num">01 —</div>
+      <div class="feat-cell-icon"><i class="fas fa-cloud-arrow-down"></i></div>
+      <div class="feat-cell-name">Universal Downloader</div>
+      <div class="feat-cell-desc">TikTok, Instagram, YouTube, Facebook — tanpa watermark, kualitas tinggi.</div>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-cell-num">02 —</div>
+      <div class="feat-cell-icon"><i class="fas fa-sparkles"></i></div>
+      <div class="feat-cell-name">AI Chat Engine</div>
+      <div class="feat-cell-desc">Natural language processing. Jawaban instan untuk semua pertanyaan.</div>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-cell-num">03 —</div>
+      <div class="feat-cell-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+      <div class="feat-cell-name">Text-to-Media</div>
+      <div class="feat-cell-desc">Buat brat sticker dan BratVid clip langsung dari teks. Tanpa aplikasi tambahan.</div>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-cell-num">04 —</div>
+      <div class="feat-cell-icon"><i class="fas fa-users-gear"></i></div>
+      <div class="feat-cell-name">Group Admin Suite</div>
+      <div class="feat-cell-desc">Welcome message, anti-spam, auto-kick, dan manajemen grup lengkap.</div>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-cell-num">05 —</div>
+      <div class="feat-cell-icon"><i class="fas fa-dice-d6"></i></div>
+      <div class="feat-cell-name">RPG Economy</div>
+      <div class="feat-cell-desc">Daily quest, inventory, leaderboard. Bikin grup makin seru dan aktif.</div>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-cell-num">06 —</div>
+      <div class="feat-cell-icon"><i class="fas fa-robot"></i></div>
+      <div class="feat-cell-name">Smart Auto-Reply</div>
+      <div class="feat-cell-desc">Custom trigger, zero latency. Respon otomatis sesuai kebutuhan grupmu.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<div class="why-section" id="why">
+  <div class="why-inner">
+    <div class="section-label">Mengapa Nakano Miku</div>
+    <h2 class="section-title">Dibangun untuk <span class="hi">jangka panjang</span>.</h2>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-card-num">/ 01</div>
+        <div class="why-card-title">Instant Response</div>
+        <div class="why-card-desc">Arsitektur event-driven. Setiap perintah dieksekusi dalam milidetik, tanpa delay.</div>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-card-num">/ 02</div>
+        <div class="why-card-title">Reliable Infrastructure</div>
+        <div class="why-card-desc">Infrastruktur dedicated. Downtime lebih dari 24 jam karena kesalahan kami = ekstensi gratis.</div>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-card-num">/ 03</div>
+        <div class="why-card-title">Harga Transparan</div>
+        <div class="why-card-desc">Mulai Rp 5.000. Semua fitur terbuka tanpa biaya tersembunyi, selamanya.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="section-label">Plans & Pricing</div>
+  <h2 class="section-title">Pilih paket <span class="hi">terbaik</span>.</h2>
+
+  <div class="pricing-grid">
+
+    <div class="price-card reveal">
+      <div class="price-tag-wrap">
+        <span class="price-tag">🕐 Trial</span>
+      </div>
+      <div class="price-plan">15 Hari</div>
+      <div class="price-desc-text">Uji coba semua fitur</div>
+      <div class="price-amount-wrap">
+        <div class="price-amount-main">5K <span class="per">/ 15 hari</span></div>
+        <div class="price-old-text">Normal Rp 10.000</div>
+      </div>
+      <div class="price-feats">
+        <div class="price-feat-item"><i class="fas fa-check"></i> Semua fitur aktif</div>
+        <div class="price-feat-item"><i class="fas fa-check"></i> Unlimited members</div>
+      </div>
+      <a href="https://wa.me/6282320532450" target="_blank" class="price-cta-btn">Mulai Trial</a>
+    </div>
+
+    <div class="price-card pop reveal">
+      <div class="price-tag-wrap">
+        <span class="price-tag">⭐ 30 Hari</span>
+        <span class="pop-badge">Populer</span>
+      </div>
+      <div class="price-plan">Satu Bulan</div>
+      <div class="price-desc-text">Pilihan terbaik pengguna</div>
+      <div class="price-amount-wrap">
+        <div class="price-amount-main">10K <span class="per">/ 30 hari</span></div>
+        <div class="price-old-text">Normal Rp 20.000</div>
+      </div>
+      <div class="price-feats">
+        <div class="price-feat-item"><i class="fas fa-check"></i> Semua fitur aktif</div>
+        <div class="price-feat-item"><i class="fas fa-check"></i> Priority support</div>
+      </div>
+      <a href="https://wa.me/6282320532450" target="_blank" class="price-cta-btn primary">Pilih Paket</a>
+    </div>
+
+    <div class="price-card reveal">
+      <div class="price-tag-wrap">
+        <span class="price-tag">💎 Value</span>
+      </div>
+      <div class="price-plan">60 Hari</div>
+      <div class="price-desc-text">Lebih hemat, lebih lama</div>
+      <div class="price-amount-wrap">
+        <div class="price-amount-main">18K <span class="per">/ 60 hari</span></div>
+        <div class="price-old-text">Normal Rp 30.000</div>
+      </div>
+      <div class="price-feats">
+        <div class="price-feat-item"><i class="fas fa-check"></i> Semua fitur aktif</div>
+        <div class="price-feat-item"><i class="fas fa-check"></i> Free updates</div>
+      </div>
+      <a href="https://wa.me/6282320532450" target="_blank" class="price-cta-btn">Pilih Paket</a>
+    </div>
+
+    <div class="price-card reveal">
+      <div class="price-tag-wrap">
+        <span class="price-tag">♾️ Lifetime</span>
+        <span class="flash-badge">⚡ Flash Sale</span>
+      </div>
+      <div class="price-plan">Permanen</div>
+      <div class="price-desc-text">Sekali bayar, selamanya</div>
+      <div class="price-amount-wrap">
+        <div class="price-amount-main flash">20K <span class="per">/ selamanya</span></div>
+        <div class="price-old-text">Normal Rp 50.000</div>
+      </div>
+      <div class="price-feats">
+        <div class="price-feat-item"><i class="fas fa-check"></i> All features forever</div>
+        <div class="price-feat-item"><i class="fas fa-check"></i> VIP Support</div>
+      </div>
+      <a href="https://wa.me/6282320532450" target="_blank" class="price-cta-btn green">Pilih Lifetime</a>
+    </div>
+
+    <div class="price-card reveal">
+      <div class="price-tag-wrap">
+        <span class="price-tag">👤 Personal</span>
+      </div>
+      <div class="price-plan">Premium</div>
+      <div class="price-desc-text">Chat pribadi langsung</div>
+      <div class="price-amount-wrap">
+        <div class="price-amount-main">10K <span class="per">/ 30 hari</span></div>
+      </div>
+      <div class="price-feats">
+        <div class="price-feat-item"><i class="fas fa-check"></i> Direct chat</div>
+        <div class="price-feat-item"><i class="fas fa-check"></i> Instant reply</div>
+      </div>
+      <a href="https://wa.me/6282320532450" target="_blank" class="price-cta-btn">Pilih Paket</a>
+    </div>
+
+    <div class="jadibot-card reveal">
+      <div class="jadibot-title">🤖 Jadibot — Nomor Sendiri</div>
+      <div class="jadibot-row"><span>Basic</span><span class="jadibot-price">Rp 5K /bln</span></div>
+      <div class="jadibot-row"><span>Standard</span><span class="jadibot-price">Rp 10K /bln</span></div>
+      <div class="jadibot-row" style="border-bottom:1px solid var(--line); margin-bottom:14px">
+        <span>Pro <span style="font-size:9px;background:var(--accent);color:#0a0a08;padding:2px 6px;border-radius:4px;font-family:var(--font-mono)">BEST</span></span>
+        <span class="jadibot-price">Rp 15K /bln</span>
+      </div>
+      <a href="https://wa.me/6282320532450" target="_blank" class="jadibot-cta">Order Sekarang</a>
+    </div>
+
+  </div>
+
+  <div class="payment-row reveal">
+    <span class="payment-label-text">Bayar via</span>
+    <span class="pay-chip">BCA</span>
+    <span class="pay-chip">BRI</span>
+    <span class="pay-chip">Mandiri</span>
+    <span class="pay-chip">GoPay</span>
+    <span class="pay-chip">OVO</span>
+    <a href="dana://send?phoneNumber=6282320532450" class="pay-chip">DANA</a>
+    <button class="pay-chip q" onclick="openQ()"><i class="fas fa-qrcode"></i> QRIS</button>
+  </div>
+</section>
+
+
+
+<!-- CTA -->
+<section class="section">
+  <div class="cta-block reveal">
+    <div class="cta-label">Ready to Start</div>
+    <h2 class="cta-title">Siap <span style="color:var(--accent)">upgrade</span> grupmu?</h2>
+    <p class="cta-sub">Gabung komunitas dan dapat info promo eksklusif setiap hari.</p>
+    <div class="cta-btns">
+      <a href="https://chat.whatsapp.com/EHhFStPlmWrGuQm6mEZf6X" target="_blank" class="btn-main">
+        <i class="fab fa-whatsapp"></i> Gabung Komunitas
+      </a>
+      <button class="btn-ghost" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">
+        Lihat Semua Paket
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<div style="border-top: 1px solid var(--line);">
+  <section class="section" id="faq">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">Yang sering <span class="hi">ditanya</span>.</h2>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          Apa bedanya Sewa Grup vs Premium?
+          <i class="fas fa-plus faq-icon"></i>
+        </button>
+        <div class="faq-body">
+          <p>Sewa Grup = bot masuk ke 1 grup kamu dan bisa dipakai semua member. Premium = chat pribadi langsung ke bot untuk keperluan personal.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          Bagaimana cara aktivasi?
+          <i class="fas fa-plus faq-icon"></i>
+        </button>
+        <div class="faq-body">
+          <p>Bayar sesuai paket → kirim bukti ke admin → admin verifikasi → bot aktif dalam 5–10 menit.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          Ada garansi tidak?
+          <i class="fas fa-plus faq-icon"></i>
+        </button>
+        <div class="faq-body">
+          <p>Ya! Downtime lebih dari 24 jam karena kesalahan kami = ekstensi gratis otomatis. Support tersedia 24/7.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="btm-section">
+  <h2 class="btm-title">Giliran <span class="outline">kamu</span><br>sekarang.</h2>
+  <p class="btm-sub">Ribuan grup sudah bertransformasi bersama Nakano Miku.</p>
+  <a href="https://wa.me/6282320532450" target="_blank" class="btn-main">
+    <i class="fab fa-whatsapp"></i> Mulai Sekarang
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Nakano <em>Miku</em></div>
+  <div class="footer-copy">© <span id="yr"></span> — All rights reserved.</div>
+</footer>
+
+<script>
+  // ─── SPLASH
+  (function() {
+    let p = 0;
+    const fill = document.getElementById('splFill');
+    const pct = document.getElementById('splPct');
+    const splash = document.getElementById('splash');
+    const t = setInterval(() => {
+      p += Math.random() * 18 + 4;
+      if (p >= 100) { p = 100; clearInterval(t); setTimeout(() => splash.classList.add('gone'), 300); }
+      fill.style.width = p + '%';
+      pct.textContent = Math.round(p) + '%';
+    }, 80);
+  })();
+
+  // ─── SUBMENU
+  function toggleSub(btn) {
+    const group = btn.closest('.drawer-group');
+    group.classList.toggle('open');
+  }
+
+  // ─── DRAWER
+  function openDrawer() {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ─── QRIS
+  function openQ() { document.getElementById('qmodal').classList.add('open'); }
+  function closeQ() { document.getElementById('qmodal').classList.remove('open'); }
+
+  // ─── FAQ
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ─── MARQUEE
+  const items = [
+    { icon: 'fa-cloud-arrow-down', label: 'Downloader' },
+    { icon: 'fa-sparkles', label: 'AI Chat' },
+    { icon: 'fa-users-gear', label: 'Group Admin' },
+    { icon: 'fa-dice-d6', label: 'RPG Economy' },
+    { icon: 'fa-robot', label: 'Auto-Reply' },
+    { icon: 'fa-wand-magic-sparkles', label: 'Text-to-Media' },
+    { icon: 'fa-shield-check', label: '99.9% Uptime' },
+    { icon: 'fa-bolt', label: 'Instant Response' },
+  ];
+  const inner = document.getElementById('marqueeInner');
+  let html = '';
+  [...items, ...items].forEach(i => {
+    html += `<span class="marquee-item"><i class="fas ${i.icon}"></i>${i.label}</span>`;
+  });
+  inner.innerHTML = html;
+
+  // ─── COUNTDOWN
+  function updateCountdown() {
+    const now = new Date();
+    const next = new Date();
+    next.setHours(23, 59, 59, 0);
+    const diff = next - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('countdown').textContent =
+      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ─── SCROLL REVEAL
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ─── YEAR
+  document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
